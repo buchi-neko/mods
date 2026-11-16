@@ -1,10 +1,22 @@
 {
   "name": "cache-usage-bar",
   "version": "0.1.0",
-  "description": "入力欄の上に、プロンプトキャッシュの残り時間と利用枠（5h・7d）の使用率をバーで表示する",
+  "description": "Shows prompt-cache time left and 5h/7d usage limits as bars above the prompt box (English / 日本語)",
   "author": {
     "name": "buchi-neko"
   },
   "license": "MIT",
-  "types": "./types/index.d.ts"
+  "types": "./types/index.d.ts",
+  "userConfig": {
+    "language": {
+      "type": "string",
+      "title": "Language",
+      "description": "Display language: en (English) or ja (日本語)",
+      "default": "en",
+      "options": [
+        "en",
+        "ja"
+      ]
+    }
+  }
 }

@@ -1,38 +1,61 @@
 # buchi-mods
 
-Claude Code（デスクトップアプリ）用の mod 置き場です。
+**English** | [日本語](README.ja.md)
+
 Mods for the Claude Code desktop app.
 
 ## cache-usage-bar
 
-入力欄の上に、次の2つをバーで表示します。
+Shows two things as bars above the prompt box:
 
-- **cache 残り**: プロンプトキャッシュが切れるまでの残り時間（60分で数える。残り10分を切ると黄色で点滅）
-- **5h / 7d**: 利用枠の使用率と、リセットまでの残り時間。灰色の縦線は「期間のうち過ぎた割合」で、色の部分が縦線より左なら余裕あり
+- **cache _N_m left** — time until the prompt cache expires (counted as 60 minutes). Turns yellow and pulses when 10 minutes or less are left. Once it expires, your next message re-reads the whole conversation, which uses more of your limits.
+- **5h / 7d** — how much of your usage limits you have used, and the time until each resets. The gray tick marks how much of the window has passed: if the colored part is left of the tick, you are using less than an even pace.
 
-ウィンドウが狭いときは、塊ごと下の行へ回って重ならないように表示します。
-ターミナル（CLI）では表示しません（ステータスラインで同じ情報を見られるため）。
+When the window is narrow, each group moves to the next row instead of overlapping.
+Nothing is shown in the terminal (CLI), where the status line can show the same information.
 
-Shows the prompt-cache time left and your 5-hour / 7-day usage limits as bars above the prompt box (desktop app only; labels are in Japanese).
+### Install
 
-## インストール / Install
-
-ターミナルで動いている Claude Code のプロンプトに入力:
+At the prompt of Claude Code running in a terminal:
 
 ```
 /plugin install cache-usage-bar --marketplace buchi-neko/mods
 ```
 
-`Add marketplace?` には `y`、続く範囲（scope）の選択は Enter で user を選びます。
+Answer `y` to `Add marketplace?`, then press Enter to choose the user scope.
 
-シェルから:
+From a shell:
 
 ```bash
 claude plugin install cache-usage-bar --marketplace buchi-neko/mods
 ```
 
-デスクトップアプリでは `/plugin` が使えないので、プロンプト欄の横の **+** → **Plugins** → **Add marketplace** に `buchi-neko/mods` を入れ、**Add plugin** から追加します。
+In the desktop app, where `/plugin` is not available: click **+** next to the prompt box, then **Plugins** → **Add marketplace**, enter `buchi-neko/mods`, and add it from **Add plugin**.
 
-## ライセンス / License
+### Settings
+
+| Setting | Values | Default |
+| --- | --- | --- |
+| `language` | `en` (English) / `ja` (日本語) | `en` |
+
+The easiest way to change it is to **ask Claude**, for example:
+
+> Set the language of the cache-usage-bar mod to Japanese.
+
+To change it yourself, add this to `~/.claude/settings.json` and start a new session:
+
+```json
+{
+  "pluginConfigs": {
+    "cache-usage-bar@buchi-mods": {
+      "options": { "language": "ja" }
+    }
+  }
+}
+```
+
+In a terminal session you can also change it from the `/config` menu.
+
+## License
 
 MIT

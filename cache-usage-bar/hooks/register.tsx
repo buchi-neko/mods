@@ -12,6 +12,28 @@ const TICK_MS = 30_000
 // 最後に Claude とやりとりした時刻。リロードしても消えないよう $.state に置く
 const lastAt = atom({ plugin: 'cache-usage-bar', key: 'lastAt' } as const, null)
 
+// 表示する文字の、言語ごとの一覧。設定（userConfig の language）で切り替える。既定は英語
+type Lang = 'en' | 'ja'
+const TEXT = {
+  en: {
+    cacheLeft: (minutes: number) => `cache ${minutes}m left`,
+    cacheExpired: 'cache expired — next message re-reads the whole chat',
+    cacheBarAlt: (minutes: number) => `Cache time left (${minutes} of ${TTL_MINUTES} min)`,
+    limitAlt: (label: string, percent: number) => `${label} usage ${percent}%`,
+    limitElapsed: (percent: number) => ` (${percent}% of the window elapsed)`,
+  },
+  ja: {
+    cacheLeft: (minutes: number) => `cache 残り ${minutes}分`,
+    cacheExpired: 'cache 切れ（次の送信は会話全体を読み直し）',
+    cacheBarAlt: (minutes: number) => `残り時間のバー（${TTL_MINUTES}分中 ${minutes}分）`,
+    limitAlt: (label: string, percent: number) => `${label} の使用率 ${percent}%`,
+    limitElapsed: (percent: number) => `（期間の ${percent}% が経過）`,
+  },
+} as const
+
+// 設定値から言語を決める。'ja' 以外（未設定や知らない値）はすべて英語
+const langOf = (value: unknown): Lang => (value === 'ja' ? 'ja' : 'en')
+
 // バーの大きさ（ピクセル）と色。
 // SVG は画像として描かれテーマ色を使えないので、明暗どちらの画面でも見える色を直接指定する
 const BAR_WIDTH = 120
@@ -89,10 +111,10 @@ const limitBarSvg = (percentUsed: number, color: string, elapsed: number | null)
 }
 
 // 利用枠バーの読み上げ用の説明
-const limitAlt = (limit: SessionRateLimit, elapsed: number | null): string => {
-  const head = `${limitLabel(limit)} の使用率 ${Math.round(limit.percentUsed)}%`
+const limitAlt = (limit: SessionRateLimit, elapsed: number | null, lang: Lang): string => {
+  const head = TEXT[lang].limitAlt(limitLabel(limit), Math.round(limit.percentUsed))
 
-  return elapsed === null ? head : `${head}（期間の ${Math.round(elapsed * 100)}% が経過）`
+  return elapsed === null ? head : `${head}${TEXT[lang].limitElapsed(Math.round(elapsed * 100))}`
 }
 
 // 利用枠の使用率がこの % 以上なら色を変えて知らせる
@@ -146,7 +168,11 @@ const stamp = async ($: EngineInterface): Promise<void> => {
   }
 }
 
-export const register: Register = on => {
+export const register: Register = (on, options) => {
+  // 表示言語（設定で変えるとモジュールごと読み直されるので、ここで一度決めればよい）
+  const lang = langOf(options.language)
+  const text = TEXT[lang]
+
   // セッション開始時（リロード時も再実行される）に、定期的な再描画を仕掛ける
   on('session.start', ($, e, next) => {
     $.clock.every(TICK_MS, () => $.ui.invalidate('ui.render'))
@@ -188,7 +214,7 @@ export const register: Register = on => {
     const elapsedMs = now - at
     const leftMinutes = Math.ceil(TTL_MINUTES - elapsedMs / 60_000)
     const isWarning = leftMinutes <= WARN_MINUTES
-    const label = `cache 残り ${leftMinutes}分`
+    const label = text.cacheLeft(leftMinutes)
 
     // 左側: キャッシュの残り時間（切れたら文字だけ）。
     // 幅が足りない時、文字だけ縮んで縦に折れたりバーが隣と重なったりしないよう、
@@ -197,14 +223,14 @@ export const register: Register = on => {
       leftMinutes <= 0 ? (
         // 切れた時の長い文は、狭ければ普通に折り返してよい
         <Box key="cache" flexShrink={1} minWidth={0}>
-          <Text color="error">cache 切れ（次の送信は会話全体を読み直し）</Text>
+          <Text color="error">{text.cacheExpired}</Text>
         </Box>
       ) : (
         <Box key="cache" flexDirection="row" alignItems="center" gap="sm" flexShrink={0}>
           {isWarning ? <Text color="warning">{label}</Text> : <Text dimColor>{label}</Text>}
           <Svg
             source={barSvg(leftMinutes / TTL_MINUTES, isWarning ? BAR_WARN : BAR_OK, isWarning)}
-            alt={`残り時間のバー（${TTL_MINUTES}分中 ${leftMinutes}分）`}
+            alt={text.cacheBarAlt(leftMinutes)}
             width={BAR_WIDTH}
             height={BAR_HEIGHT}
           />
@@ -254,7 +280,7 @@ export const register: Register = on => {
                   )}
                   <Svg
                     source={limitBarSvg(limit.percentUsed, isOver ? BAR_WARN : LIMIT_OK, elapsed)}
-                    alt={limitAlt(limit, elapsed)}
+                    alt={limitAlt(limit, elapsed, lang)}
                     width={LIMIT_WIDTH}
                     height={LIMIT_HEIGHT}
                   />

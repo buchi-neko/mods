@@ -15,6 +15,9 @@ const BAND = {
   },
 } as const
 
+// 既存のテストは日本語表示の設定で動かす
+const JA = { options: { language: 'ja' } } as const
+
 const MINUTE = 60_000
 const NOW = 1_000 * MINUTE
 
@@ -40,37 +43,37 @@ const drawn = async ($: any, surface: 'terminal' | 'desktop') => {
   return text
 }
 
-test('やりとり直後は、デスクトップで残り60分と出る', async ($, on) => {
+test('やりとり直後は、デスクトップで残り60分と出る', JA, async ($, on) => {
   arrange(on, 0)
 
   expect(await drawn($, 'desktop')).toBe('cache 残り 60分')
 })
 
-test('CLI（ターミナル）では何も描かない', async ($, on) => {
+test('CLI（ターミナル）では何も描かない', JA, async ($, on) => {
   arrange(on, 0)
 
   expect(await drawn($, 'terminal')).toBeUndefined()
 })
 
-test('55分経つと残り5分と出る', async ($, on) => {
+test('55分経つと残り5分と出る', JA, async ($, on) => {
   arrange(on, 55)
 
   expect(await drawn($, 'desktop')).toBe('cache 残り 5分')
 })
 
-test('60分を過ぎると切れたと出る', async ($, on) => {
+test('60分を過ぎると切れたと出る', JA, async ($, on) => {
   arrange(on, 61)
 
   expect(await drawn($, 'desktop')).toBe('cache 切れ（次の送信は会話全体を読み直し）')
 })
 
-test('まだやりとりが無ければ何も描かない', async ($, on) => {
+test('まだやりとりが無ければ何も描かない', JA, async ($, on) => {
   arrange(on, null)
 
   expect(await drawn($, 'desktop')).toBeUndefined()
 })
 
-test('残り時間のバーが描かれ、55分後は幅が12分の1になる', async ($, on) => {
+test('残り時間のバーが描かれ、55分後は幅が12分の1になる', JA, async ($, on) => {
   arrange(on, 55)
 
   const ui = await $.ui.mount({ ...BAND, surface: 'desktop' })
@@ -82,7 +85,7 @@ test('残り時間のバーが描かれ、55分後は幅が12分の1になる', 
   expect(JSON.stringify(bar)).toContain('rect width=\\"10\\"')
 })
 
-test('右側に利用枠の使用率が並ぶ（知らない種類は名前のまま）', async ($, on) => {
+test('右側に利用枠の使用率が並ぶ（知らない種類は名前のまま）', JA, async ($, on) => {
   arrange(on, 0, [
     { kind: 'five_hour', percentUsed: 4 },
     { kind: 'seven_day', percentUsed: 23.4 },
@@ -98,7 +101,7 @@ test('右側に利用枠の使用率が並ぶ（知らない種類は名前の�
   expect(found.map(node => node?.text)).toEqual(['5h 4%', '7d 23%', 'something_new 28%'])
 })
 
-test('リセットまでの残りがバーの右に、24時間未満は時間と分、以上は日と時間で出る', async ($, on) => {
+test('リセットまでの残りがバーの右に、24時間未満は時間と分、以上は日と時間で出る', JA, async ($, on) => {
   arrange(on, 0, [
     { kind: 'five_hour', percentUsed: 4, resetsAt: new Date(NOW + 151 * MINUTE).toISOString() },
     { kind: 'seven_day', percentUsed: 23, resetsAt: new Date(NOW + (3 * 24 + 5) * 60 * MINUTE + 59 * MINUTE).toISOString() },
@@ -134,19 +137,19 @@ const svgOf = async ($: any, pattern: RegExp) => {
   return svg === undefined ? undefined : JSON.stringify(svg)
 }
 
-test('cache のバーは残り10分以下の時だけ点滅する', async ($, on) => {
+test('cache のバーは残り10分以下の時だけ点滅する', JA, async ($, on) => {
   arrange(on, 55)
 
   expect(await svgOf($, /^残り時間のバー/)).toContain('<animate')
 })
 
-test('cache のバーは余裕がある間は点滅しない', async ($, on) => {
+test('cache のバーは余裕がある間は点滅しない', JA, async ($, on) => {
   arrange(on, 5)
 
   expect(await svgOf($, /^残り時間のバー/)).not.toContain('<animate')
 })
 
-test('利用枠のバーに、期間の経過割合の位置へ縦線が立つ（点滅はしない）', async ($, on) => {
+test('利用枠のバーに、期間の経過割合の位置へ縦線が立つ（点滅はしない）', JA, async ($, on) => {
   // 5時間の枠で残り150分 = 半分が経過。56px の半分 = 28px、縦線の左端は 27px
   arrange(on, 0, [
     { kind: 'five_hour', percentUsed: 90, resetsAt: new Date(NOW + 150 * MINUTE).toISOString() },
@@ -160,7 +163,7 @@ test('利用枠のバーに、期間の経過割合の位置へ縦線が立つ�
   expect(svg).not.toContain('<animate')
 })
 
-test('期間の長さが分からない種類の枠は、縦線なしのバーになる', async ($, on) => {
+test('期間の長さが分からない種類の枠は、縦線なしのバーになる', JA, async ($, on) => {
   arrange(on, 0, [
     { kind: 'something_new', percentUsed: 28, resetsAt: new Date(NOW + 60 * MINUTE).toISOString() },
   ])
@@ -171,7 +174,7 @@ test('期間の長さが分からない種類の枠は、縦線なしのバー�
   expect(svg).not.toContain('rect x=')
 })
 
-test('狭い幅でも崩れないよう、帯は折り返し可で、各塊は縮まない', async ($, on) => {
+test('狭い幅でも崩れないよう、帯は折り返し可で、各塊は縮まない', JA, async ($, on) => {
   arrange(on, 0, [
     { kind: 'five_hour', percentUsed: 2 },
     { kind: 'seven_day', percentUsed: 1 },
@@ -188,4 +191,36 @@ test('狭い幅でも崩れないよう、帯は折り返し可で、各塊は�
   expect(limits?.props.flexWrap).toBe('wrap')
   // cache の塊と各枠は縮めない（文字が縦に折れたりバーが重なったりしない）
   expect([cache, five, seven].map(node => node?.props.flexShrink)).toEqual([0, 0, 0])
+})
+
+// ---- 英語（既定）の表示 ----
+
+test('設定なしなら英語で、残り時間に left が付く', async ($, on) => {
+  arrange(on, 0)
+
+  expect(await drawn($, 'desktop')).toBe('cache 60m left')
+})
+
+test('英語で、切れたら次の送信で読み直すと出る', async ($, on) => {
+  arrange(on, 61)
+
+  expect(await drawn($, 'desktop')).toBe('cache expired — next message re-reads the whole chat')
+})
+
+test('知らない言語の値は英語として扱う', { options: { language: 'fr' } }, async ($, on) => {
+  arrange(on, 55)
+
+  expect(await drawn($, 'desktop')).toBe('cache 5m left')
+})
+
+test('英語では、バーの読み上げ用の説明も英語になる', async ($, on) => {
+  arrange(on, 0, [
+    { kind: 'five_hour', percentUsed: 90, resetsAt: new Date(NOW + 150 * MINUTE).toISOString() },
+  ])
+
+  const ui = await $.ui.mount({ ...BAND, surface: 'desktop' })
+  const alts = (await ui.findAll({ type: 'Svg' })).map((node: any) => node.props.alt)
+  await ui.unmount()
+
+  expect(alts).toEqual(['Cache time left (60 of 60 min)', '5h usage 90% (50% of the window elapsed)'])
 })
