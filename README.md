@@ -13,6 +13,22 @@ Shows two things as bars above the prompt box:
 
 When the window is narrow, each group moves to the next row instead of overlapping.
 
+<img src="docs/images/normal-en.png" width="820" alt="cache 58m left, 5h 12%, 7d 23%">
+
+10 minutes or less left (a limit at 80% or more turns yellow too):
+
+<img src="docs/images/warning-en.png" width="820" alt="cache 8m left in yellow, 5h 86% in yellow">
+
+Expired:
+
+<img src="docs/images/expired-en.png" width="820" alt="cache expired — next message re-reads the whole chat">
+
+Narrow window:
+
+<img src="docs/images/narrow-en.png" width="420" alt="the bar wrapped onto two rows">
+
+<sub>The images are recreations drawn with the mod's own colors and bars, not screenshots.</sub>
+
 > **Claude desktop app only** (the Code tab). The bar is not shown in the terminal (CLI), the VS Code extension, or the mobile app: Claude Code draws this area above the prompt only in the desktop app and the terminal, and the terminal can show the same information in its status line.
 
 ### Install

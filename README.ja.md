@@ -13,6 +13,22 @@ Claude Code（デスクトップアプリ）用の mod 置き場です。
 
 ウィンドウが狭いときは、重ならないように塊ごと下の行へ回ります。
 
+<img src="docs/images/normal-ja.png" width="820" alt="cache 残り 58分、5h 12%、7d 23%">
+
+残り10分以下（使用率80%以上の利用枠も黄色になります）:
+
+<img src="docs/images/warning-ja.png" width="820" alt="黄色の cache 残り 8分と 5h 86%">
+
+切れたとき:
+
+<img src="docs/images/expired-ja.png" width="820" alt="cache 切れ（次の送信は会話全体を読み直し）">
+
+狭いウィンドウ:
+
+<img src="docs/images/narrow-ja.png" width="420" alt="2行に折り返した帯">
+
+<sub>画像はスクリーンショットではなく、mod と同じ色・バーで描いた再現画像です。</sub>
+
 > **Claude デスクトップアプリ（Code タブ）専用です。** ターミナル（CLI）、VS Code 拡張、モバイルアプリでは表示されません。Claude Code が入力欄の上のこの場所を描くのはデスクトップアプリとターミナルだけで、ターミナルではステータスラインで同じ情報を見られるため、表示しないようにしています。
 
 ### インストール
