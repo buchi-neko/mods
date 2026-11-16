@@ -2,7 +2,11 @@
 
 [English](README.md) | **日本語**
 
-Claude Code（デスクトップアプリ）用の mod 置き場です。
+Claude Code 用の mod 置き場です。どの mod もこの1つの marketplace からインストールできます。使える場所は mod ごとに書いています。
+
+| mod | できること | 使える場所 |
+| --- | --- | --- |
+| [cache-usage-bar](#cache-usage-bar) | 入力欄の上に、キャッシュの残り時間と利用枠（5h / 7d）をバーで表示 | デスクトップアプリ |
 
 ## cache-usage-bar
 

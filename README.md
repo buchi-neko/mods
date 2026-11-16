@@ -2,7 +2,11 @@
 
 **English** | [日本語](README.ja.md)
 
-Mods for the Claude Code desktop app.
+Mods for Claude Code. All of them install from this one marketplace; each mod says where it works.
+
+| Mod | What it does | Works in |
+| --- | --- | --- |
+| [cache-usage-bar](#cache-usage-bar) | Prompt-cache time left and 5h / 7d usage limits as bars above the prompt box | Desktop app |
 
 ## cache-usage-bar
 
