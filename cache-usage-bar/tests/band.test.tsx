@@ -207,7 +207,7 @@ test('英語で、切れたら次の送信で読み直すと出る', async ($, o
   expect(await drawn($, 'desktop')).toBe('cache expired — next message re-reads the whole chat')
 })
 
-test('知らない言語の値は英語として扱う', { options: { language: 'fr' } }, async ($, on) => {
+test('設定の候補に無い値（fr）は未設定扱いになり、既定の英語で出る', { options: { language: 'fr' } }, async ($, on) => {
   arrange(on, 55)
 
   expect(await drawn($, 'desktop')).toBe('cache 5m left')

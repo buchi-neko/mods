@@ -30,6 +30,8 @@ const TEXT = {
     limitElapsed: (percent: number) => `（期間の ${percent}% が経過）`,
   },
 } as const
+// 1言語ぶんの文字の一覧
+type Strings = (typeof TEXT)[Lang]
 
 // 設定値から言語を決める。'ja' 以外（未設定や知らない値）はすべて英語
 const langOf = (value: unknown): Lang => (value === 'ja' ? 'ja' : 'en')
@@ -111,10 +113,10 @@ const limitBarSvg = (percentUsed: number, color: string, elapsed: number | null)
 }
 
 // 利用枠バーの読み上げ用の説明
-const limitAlt = (limit: SessionRateLimit, elapsed: number | null, lang: Lang): string => {
-  const head = TEXT[lang].limitAlt(limitLabel(limit), Math.round(limit.percentUsed))
+const limitAlt = (limit: SessionRateLimit, elapsed: number | null, text: Strings): string => {
+  const head = text.limitAlt(limitLabel(limit), Math.round(limit.percentUsed))
 
-  return elapsed === null ? head : `${head}${TEXT[lang].limitElapsed(Math.round(elapsed * 100))}`
+  return elapsed === null ? head : `${head}${text.limitElapsed(Math.round(elapsed * 100))}`
 }
 
 // 利用枠の使用率がこの % 以上なら色を変えて知らせる
@@ -169,7 +171,8 @@ const stamp = async ($: EngineInterface): Promise<void> => {
 }
 
 export const register: Register = (on, options) => {
-  // 表示言語（設定で変えるとモジュールごと読み直されるので、ここで一度決めればよい）
+  // 表示言語。読み込み時に一度だけ決める（/config で変えるとモジュールが読み直される。
+  // settings.json を直接書き換えた場合は、次のセッションから反映）
   const lang = langOf(options.language)
   const text = TEXT[lang]
 
@@ -280,7 +283,7 @@ export const register: Register = (on, options) => {
                   )}
                   <Svg
                     source={limitBarSvg(limit.percentUsed, isOver ? BAR_WARN : LIMIT_OK, elapsed)}
-                    alt={limitAlt(limit, elapsed, lang)}
+                    alt={limitAlt(limit, elapsed, text)}
                     width={LIMIT_WIDTH}
                     height={LIMIT_HEIGHT}
                   />
