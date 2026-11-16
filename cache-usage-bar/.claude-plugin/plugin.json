@@ -1,0 +1,10 @@
+{
+  "name": "cache-usage-bar",
+  "version": "0.1.0",
+  "description": "入力欄の上に、プロンプトキャッシュの残り時間と利用枠（5h・7d）の使用率をバーで表示する",
+  "author": {
+    "name": "buchi-neko"
+  },
+  "license": "MIT",
+  "types": "./types/index.d.ts"
+}

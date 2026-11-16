@@ -1,0 +1,7 @@
+# macOS とエディタが作るファイル
+.DS_Store
+*~
+*.swp
+*.log
+# エンジンが読み込み時に自動生成する型定義
+.claude-plugin/types/

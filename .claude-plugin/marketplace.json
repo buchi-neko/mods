@@ -1,0 +1,14 @@
+{
+  "name": "buchi-mods",
+  "description": "buchi-neko の Claude Code 用 mod 集",
+  "owner": {
+    "name": "buchi-neko"
+  },
+  "plugins": [
+    {
+      "name": "cache-usage-bar",
+      "source": "./cache-usage-bar",
+      "description": "入力欄の上に、プロンプトキャッシュの残り時間と利用枠（5h・7d）の使用率をバーで表示する"
+    }
+  ]
+}
