@@ -3,13 +3,16 @@
 // Chrome のヘッドレス機能で PNG に書き出す。実行: node docs/render-images.mjs
 // 本体の色や文言を変えたら、ここも合わせて直してから再実行する。
 import { execFileSync } from 'node:child_process'
-import { mkdirSync, writeFileSync, mkdtempSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const OUT = join(dirname(fileURLToPath(import.meta.url)), 'images')
-const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+// Chrome の場所。macOS 以外では環境変数 CHROME で指定する
+const CHROME = process.env.CHROME ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+// 撮影する高さ（CSS ピクセル）。帯がこれより高いと切れるので、検出して止める
+const SHOT_HEIGHT = 400
 
 // ---- 本体と同じ値（register.tsx からの写し） ----
 const TTL = 60
@@ -113,6 +116,7 @@ const page = (lang, scene) => `<!doctype html><html><head><meta charset="utf-8">
 mkdirSync(OUT, { recursive: true })
 const work = mkdtempSync(join(tmpdir(), 'cub-'))
 
+try {
 for (const lang of ['en', 'ja']) {
   for (const [name, scene] of Object.entries(SCENES)) {
     const html = join(work, `${name}-${lang}.html`)
@@ -121,8 +125,9 @@ for (const lang of ['en', 'ja']) {
     const png = join(OUT, `${name}-${lang}.png`)
     execFileSync(CHROME, [
       '--headless=new', '--disable-gpu', '--hide-scrollbars', '--force-device-scale-factor=2',
-      `--window-size=${scene.width},200`, `--screenshot=${png}`, `file://${html}`,
+      `--window-size=${scene.width},${SHOT_HEIGHT}`, `--screenshot=${png}`, `file://${html}`,
     ], { stdio: 'ignore' })
+    if (!existsSync(png)) throw new Error(`Chrome が画像を書き出せなかった: ${png}（CHROME=${CHROME}）`)
     // 背景色（#1a1a1a）だけの行を下から削り、上と同じ 10px（2倍で 20px）の余白を残す
     execFileSync('python3', ['-c', `
 import sys
@@ -130,9 +135,18 @@ from PIL import Image
 im = Image.open(sys.argv[1]).convert('RGB')
 w, h = im.size
 px = im.load()
-bottom = max(y for y in range(h) if any(px[x, y] != (26, 26, 26) for x in range(0, w, 2)))
+rows = [y for y in range(h) if any(px[x, y] != (26, 26, 26) for x in range(0, w, 2))]
+if not rows:
+    sys.exit('画像が背景色だけ（Chrome が何も描けていない）: ' + sys.argv[1])
+bottom = rows[-1]
+if bottom >= h - 21:
+    sys.exit('帯が撮影範囲より高く、下が切れている（SHOT_HEIGHT を増やす）: ' + sys.argv[1])
 im.crop((0, 0, w, min(h, bottom + 21))).save(sys.argv[1])
 `, png])
     console.log(png)
   }
+}
+} finally {
+  // 作業用の HTML は残さない
+  rmSync(work, { recursive: true, force: true })
 }
