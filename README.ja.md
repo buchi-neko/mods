@@ -55,7 +55,11 @@ claude plugin install cache-usage-bar --marketplace buchi-neko/mods
 }
 ```
 
-ターミナルのセッションでは `/config` の画面からも変えられます。
+または、シェルで次を実行してから新しいセッションを開きます。
+
+```bash
+echo '{"language":"ja"}' | claude plugin configure cache-usage-bar@buchi-mods --values-stdin
+```
 
 ## ライセンス
 

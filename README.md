@@ -55,7 +55,11 @@ To change it yourself, add this to `~/.claude/settings.json` and start a new ses
 }
 ```
 
-In a terminal session you can also change it from the `/config` menu.
+Or run this in a shell, then start a new session:
+
+```bash
+echo '{"language":"ja"}' | claude plugin configure cache-usage-bar@buchi-mods --values-stdin
+```
 
 ## License
 
