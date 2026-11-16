@@ -12,7 +12,8 @@ Shows two things as bars above the prompt box:
 - **5h / 7d** — how much of your usage limits you have used, and the time until each resets. The gray tick marks how much of the window has passed: if the colored part is left of the tick, you are using less than an even pace.
 
 When the window is narrow, each group moves to the next row instead of overlapping.
-Nothing is shown in the terminal (CLI), where the status line can show the same information.
+
+> **Claude desktop app only** (the Code tab). The bar is not shown in the terminal (CLI), the VS Code extension, or the mobile app: Claude Code draws this area above the prompt only in the desktop app and the terminal, and the terminal can show the same information in its status line.
 
 ### Install
 
