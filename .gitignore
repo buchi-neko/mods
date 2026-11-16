@@ -5,3 +5,5 @@
 *.log
 # エンジンが読み込み時に自動生成する型定義
 .claude-plugin/types/
+# 個人用の非公開メモ（Claude Code が読む）
+CLAUDE.local.md
